@@ -57,7 +57,7 @@
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Автоматически подставляем username клиента, если он есть
+        // Подставляем username, если доступен
         if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.username) {
             document.getElementById('contact').value = '@' + tg.initDataUnsafe.user.username;
         }
@@ -81,7 +81,12 @@
                 comment: comment
             };
 
-            tg.sendData(JSON.stringify(data));
+            // Проверка: открыто ли приложение внутри Telegram
+            if (tg.initData && tg.initData.length > 0) {
+                tg.sendData(JSON.stringify(data));
+            } else {
+                alert("Ошибка: приложение запущено вне Telegram. Метод sendData работает только внутри клиента Telegram.");
+            }
         });
     </script>
 </body>
