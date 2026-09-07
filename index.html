@@ -7,22 +7,21 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #080b12;
-            --card-bg: rgba(18, 24, 38, 0.65);
-            --card-border: rgba(0, 242, 254, 0.15);
-            --card-border-active: #00f2fe;
-            --primary-glow: #00f2fe;
-            --secondary-glow: #4facfe;
-            --accent-purple: #7f00ff;
-            --text-main: #f0f4f8;
-            --text-muted: #8a99ad;
-            --input-bg: rgba(10, 14, 23, 0.8);
+            --bg-dark: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-border-active: #3b82f6;
+            --accent-blue: #3b82f6;
+            --accent-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --input-bg: rgba(15, 23, 42, 0.6);
             --radius-lg: 16px;
             --radius-md: 12px;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
@@ -39,20 +38,8 @@
             color: var(--text-main);
             min-height: 100vh;
             overflow-x: hidden;
-            padding-bottom: 90px;
+            padding-bottom: 100px;
             position: relative;
-        }
-
-        /* Matrix Code Canvas Background */
-        #matrix-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 0;
-            opacity: 0.22;
-            pointer-events: none;
         }
 
         /* App Container */
@@ -61,14 +48,14 @@
             z-index: 1;
             max-width: 480px;
             margin: 0 auto;
-            padding: 20px 16px;
+            padding: 24px 16px;
         }
 
         /* Header Section */
         .header {
             text-align: center;
-            margin-bottom: 24px;
-            animation: fadeInDown 0.6s ease-out;
+            margin-bottom: 28px;
+            animation: fadeInDown 0.5s ease-out;
         }
 
         .header-badge {
@@ -76,51 +63,45 @@
             align-items: center;
             gap: 6px;
             padding: 6px 14px;
-            background: rgba(0, 242, 254, 0.1);
-            border: 1px solid rgba(0, 242, 254, 0.3);
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid rgba(59, 130, 246, 0.25);
             border-radius: 20px;
-            font-family: 'Fira Code', monospace;
-            font-size: 11px;
-            color: var(--primary-glow);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-blue);
             margin-bottom: 12px;
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
         }
 
         .pulse-dot {
-            width: 6px;
-            height: 6px;
-            background-color: var(--primary-glow);
+            width: 7px;
+            height: 7px;
+            background-color: var(--accent-blue);
             border-radius: 50%;
-            box-shadow: 0 0 8px var(--primary-glow);
-            animation: pulse 1.5s infinite;
+            animation: pulse 2s infinite;
         }
 
         .header h1 {
             font-size: 24px;
             font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 0%, #00f2fe 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: var(--text-main);
             letter-spacing: -0.5px;
             margin-bottom: 6px;
         }
 
         .header p {
-            font-size: 13px;
+            font-size: 14px;
             color: var(--text-muted);
             font-weight: 400;
         }
 
         /* Section Titles */
         .section-title {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             color: var(--text-muted);
-            margin: 20px 0 12px 4px;
+            margin: 22px 0 12px 2px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -130,7 +111,7 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+            background: rgba(255, 255, 255, 0.08);
         }
 
         /* Services Grid */
@@ -150,57 +131,39 @@
             cursor: pointer;
             transition: var(--transition);
             position: relative;
-            overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 120px;
-        }
-
-        .service-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, var(--primary-glow), transparent);
-            opacity: 0;
-            transition: var(--transition);
+            min-height: 124px;
         }
 
         .service-card:active {
-            transform: scale(0.97);
+            transform: scale(0.98);
         }
 
         .service-card.active {
             border-color: var(--card-border-active);
-            background: rgba(0, 242, 254, 0.08);
-            box-shadow: 0 0 20px rgba(0, 242, 254, 0.15), inset 0 0 15px rgba(0, 242, 254, 0.05);
-        }
-
-        .service-card.active::before {
-            opacity: 1;
+            background: rgba(59, 130, 246, 0.12);
+            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
         }
 
         .card-icon {
-            width: 38px;
-            height: 38px;
+            width: 40px;
+            height: 40px;
             border-radius: var(--radius-md);
             background: rgba(255, 255, 255, 0.05);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 20px;
             margin-bottom: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             transition: var(--transition);
         }
 
         .service-card.active .card-icon {
-            background: var(--primary-glow);
-            color: #000;
-            box-shadow: 0 0 12px var(--primary-glow);
+            background: var(--accent-blue);
+            color: #ffffff;
         }
 
         .card-title {
@@ -218,29 +181,29 @@
 
         .card-checkmark {
             position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 18px;
-            height: 18px;
+            top: 14px;
+            right: 14px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            border: 1px solid var(--text-muted);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 10px;
+            font-size: 11px;
             transition: var(--transition);
-            opacity: 0.5;
+            opacity: 0.4;
         }
 
         .service-card.active .card-checkmark {
-            background: var(--primary-glow);
-            border-color: var(--primary-glow);
-            color: #000;
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: #ffffff;
             opacity: 1;
             font-weight: bold;
         }
 
-        /* Budget & Options */
+        /* Priority Options */
         .options-row {
             display: flex;
             gap: 8px;
@@ -254,29 +217,31 @@
         }
 
         .chip-option {
-            flex: 0 0 auto;
-            padding: 10px 16px;
+            flex: 1;
+            text-align: center;
+            padding: 12px 14px;
             background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 20px;
-            font-size: 12px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
             font-weight: 500;
             color: var(--text-muted);
             backdrop-filter: blur(10px);
             cursor: pointer;
             transition: var(--transition);
+            white-space: nowrap;
         }
 
         .chip-option.active {
-            background: linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(127, 0, 255, 0.2) 100%);
-            border-color: var(--primary-glow);
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--accent-blue);
             color: var(--text-main);
-            box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
+            font-weight: 600;
         }
 
         /* Form Inputs */
         .form-group {
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         .input-wrapper {
@@ -306,52 +271,49 @@
             outline: none;
             transition: var(--transition);
             backdrop-filter: blur(8px);
+            -webkit-appearance: none;
         }
 
         textarea.form-control {
             padding-left: 42px;
-            min-height: 90px;
+            min-height: 95px;
             resize: none;
         }
 
         .form-control:focus {
-            border-color: var(--primary-glow);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
-        }
-
-        .form-control:focus + .input-icon {
-            color: var(--primary-glow);
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
         }
 
         /* Summary Box */
         .summary-card {
-            background: linear-gradient(135deg, rgba(18, 24, 38, 0.8) 0%, rgba(10, 14, 23, 0.9) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
             border-radius: var(--radius-lg);
             padding: 16px;
             margin-top: 20px;
-            font-family: 'Fira Code', monospace;
-            font-size: 12px;
+            font-size: 13px;
             backdrop-filter: blur(10px);
         }
 
         .summary-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             color: var(--text-muted);
         }
 
         .summary-row:last-child {
             margin-bottom: 0;
-            padding-top: 8px;
+            padding-top: 10px;
             border-top: 1px dashed rgba(255, 255, 255, 0.1);
             color: var(--text-main);
             font-weight: 600;
         }
 
         .summary-value {
-            color: var(--primary-glow);
+            color: var(--accent-blue);
+            font-weight: 600;
         }
 
         /* Action Button */
@@ -361,7 +323,7 @@
             left: 0;
             right: 0;
             padding: 16px;
-            background: linear-gradient(180deg, transparent 0%, var(--bg-dark) 40%);
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, var(--bg-dark) 40%);
             z-index: 10;
         }
 
@@ -373,24 +335,22 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #7f00ff 100%);
-            background-size: 200% auto;
+            background: var(--accent-gradient);
             border: none;
             border-radius: var(--radius-md);
             padding: 16px;
             color: #ffffff;
             font-family: 'Inter', sans-serif;
             font-size: 15px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
+            font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 4px 25px rgba(0, 242, 254, 0.35);
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35);
             transition: var(--transition);
         }
 
         .btn-submit:active {
             transform: scale(0.98);
-            box-shadow: 0 2px 15px rgba(0, 242, 254, 0.2);
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.2);
         }
 
         /* Toast Notifications */
@@ -399,8 +359,8 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%) translateY(-100px);
-            background: rgba(18, 24, 38, 0.95);
-            border: 1px solid var(--primary-glow);
+            background: rgba(30, 41, 59, 0.95);
+            border: 1px solid var(--accent-blue);
             color: var(--text-main);
             padding: 12px 20px;
             border-radius: 30px;
@@ -409,7 +369,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 242, 254, 0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             z-index: 100;
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             backdrop-filter: blur(10px);
@@ -419,27 +379,23 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        /* Keyframes Animations */
         @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 242, 254, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(0, 242, 254, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 242, 254, 0); }
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
         }
 
         @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
+            from { opacity: 0; transform: translateY(-15px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
-    <!-- Matrix Code Canvas Animation -->
-    <canvas id="matrix-canvas"></canvas>
-
     <!-- Toast Alert Container -->
     <div id="toast" class="toast">
-        <span id="toast-icon">⚡</span>
+        <span id="toast-icon">✨</span>
         <span id="toast-msg">Сообщение</span>
     </div>
 
@@ -450,14 +406,14 @@
         <div class="header">
             <div class="header-badge">
                 <span class="pulse-dot"></span>
-                <span>DevStudio Core v2.4</span>
+                <span>DevStudio</span>
             </div>
             <h1>Заказ разработки</h1>
-            <p>Выберите нужный стек и опишите задачу</p>
+            <p>Выберите нужную услугу и укажите параметры</p>
         </div>
 
         <!-- Services Selection -->
-        <div class="section-title">01 // Продукт</div>
+        <div class="section-title">Категория</div>
         <div class="services-grid" id="services-grid">
             
             <div class="service-card active" data-service="Telegram Mini App">
@@ -517,15 +473,15 @@
         </div>
 
         <!-- Priority / Timeline Selection -->
-        <div class="section-title">02 // Срочность</div>
+        <div class="section-title">Срочность</div>
         <div class="options-row" id="priority-options">
             <div class="chip-option active" data-priority="Стандартно">⚙️ Стандартно</div>
-            <div class="chip-option" data-priority="Срочно (ASAP)">🔥 Срочно (ASAP)</div>
-            <div class="chip-option" data-priority="Не спешу">☕ В свободном темпе</div>
+            <div class="chip-option" data-priority="Срочно (ASAP)">🔥 Срочно</div>
+            <div class="chip-option" data-priority="Не спешу">☕ Не спешу</div>
         </div>
 
         <!-- Contact Information -->
-        <div class="section-title">03 // Детали и Контакты</div>
+        <div class="section-title">Контакты и Описание</div>
         <div class="form-group">
             <div class="input-wrapper">
                 <input type="text" id="contact" class="form-control" placeholder="@username или телефон">
@@ -540,28 +496,28 @@
             </div>
         </div>
 
-        <!-- Code Style Summary -->
+        <!-- Summary -->
         <div class="summary-card">
             <div class="summary-row">
-                <span>[SELECTED]:</span>
-                <span class="summary-value" id="summary-service">Mini App</span>
+                <span>Услуга:</span>
+                <span class="summary-value" id="summary-service">Telegram Mini App</span>
             </div>
             <div class="summary-row">
-                <span>[PRIORITY]:</span>
+                <span>Срочность:</span>
                 <span class="summary-value" id="summary-priority">Стандартно</span>
             </div>
             <div class="summary-row">
-                <span>[STATUS]:</span>
-                <span class="summary-value" style="color: #00f2fe;">Ready to Send</span>
+                <span>Статус:</span>
+                <span class="summary-value" style="color: #10b981;">Готово к отправке</span>
             </div>
         </div>
 
     </div>
 
-    <!-- Bottom Action Button -->
+    <!-- Bottom Action Button (Единственная кнопка) -->
     <div class="action-button-container">
         <button type="button" id="submit-btn" class="btn-submit">
-            <span>ОТПРАВИТЬ ЗАЯВКУ</span>
+            <span>Отправить заявку</span>
             <span>➔</span>
         </button>
     </div>
@@ -572,18 +528,38 @@
         tg.expand();
         tg.enableClosingConfirmation();
 
+        // Отключаем стандартную встроенную кнопку Telegram, чтобы не было дублирования
+        tg.MainButton.hide();
+
         // Color theme Sync
-        if (tg.setHeaderColor) tg.setHeaderColor('#080b12');
-        if (tg.setBackgroundColor) tg.setBackgroundColor('#080b12');
+        if (tg.setHeaderColor) tg.setHeaderColor('#0f172a');
+        if (tg.setBackgroundColor) tg.setBackgroundColor('#0f172a');
 
         // Autofill Telegram Username
         const contactInput = document.getElementById('contact');
+        const commentInput = document.getElementById('comment');
+
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             const user = tg.initDataUnsafe.user;
             if (user.username) {
                 contactInput.value = '@' + user.username;
             }
         }
+
+        // --- Вспомогательная функция закрытия клавиатуры ---
+        function dismissKeyboard() {
+            if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
+                document.activeElement.blur();
+            }
+        }
+
+        // Автоматически скрывать клавиатуру при нажатии Enter в однострочном поле
+        contactInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                dismissKeyboard();
+            }
+        });
 
         // State Management
         let state = {
@@ -608,7 +584,7 @@
         }
 
         // --- Toast Notification Helper ---
-        function showToast(message, icon = '⚡') {
+        function showToast(message, icon = '✨') {
             const toast = document.getElementById('toast');
             document.getElementById('toast-msg').innerText = message;
             document.getElementById('toast-icon').innerText = icon;
@@ -624,6 +600,7 @@
         // --- Service Selection Handler ---
         serviceCards.forEach(card => {
             card.addEventListener('click', () => {
+                dismissKeyboard();
                 triggerHaptic('medium');
                 serviceCards.forEach(c => c.classList.remove('active'));
                 card.classList.add('active');
@@ -636,6 +613,7 @@
         // --- Priority Selection Handler ---
         priorityChips.forEach(chip => {
             chip.addEventListener('click', () => {
+                dismissKeyboard();
                 triggerHaptic('light');
                 priorityChips.forEach(c => c.classList.remove('active'));
                 chip.classList.add('active');
@@ -647,8 +625,10 @@
 
         // --- Submit Order Logic ---
         function sendPayload() {
+            dismissKeyboard(); // Скрываем клавиатуру перед отправкой
+            
             state.contact = contactInput.value.trim();
-            state.comment = document.getElementById('comment').value.trim();
+            state.comment = commentInput.value.trim();
 
             if (!state.contact) {
                 showToast('Укажите ваш контакт!', '⚠️');
@@ -662,10 +642,9 @@
                 service: state.service,
                 priority: state.priority,
                 contact: state.contact,
-                comment: state.comment || 'Не указан'
+                comment: state.comment || 'Без комментариев'
             };
 
-            // Attempting to send data via Telegram Native SDK
             try {
                 tg.sendData(JSON.stringify(payload));
             } catch (err) {
@@ -674,57 +653,6 @@
         }
 
         submitBtn.addEventListener('click', sendPayload);
-
-        // Configure Telegram MainButton as backup sync
-        tg.MainButton.setText("ОТПРАВИТЬ ЗАЯВКУ");
-        tg.MainButton.setParams({
-            color: "#00f2fe",
-            text_color: "#000000"
-        });
-        tg.MainButton.onClick(sendPayload);
-        tg.MainButton.show();
-
-
-        // =================================================================
-        // --- MATRIX / CODE RAIN CANVAS ANIMATION ---
-        // =================================================================
-        const canvas = document.getElementById('matrix-canvas');
-        const ctx = canvas.getContext('2d');
-
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        const chars = '01<>/{}[]=;:$#&@_ABCDEFGHJKLMNOPQRSTUVWXYZ';
-        const fontSize = 12;
-        let columns = Math.floor(canvas.width / fontSize);
-        let drops = Array(columns).fill(1);
-
-        function drawMatrix() {
-            ctx.fillStyle = 'rgba(8, 11, 18, 0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            ctx.fillStyle = '#00f2fe';
-            ctx.font = `${fontSize}px 'Fira Code', monospace`;
-
-            for (let i = 0; i < drops.length; i++) {
-                const text = chars.charAt(Math.floor(Math.random() * chars.length));
-                const x = i * fontSize;
-                const y = drops[i] * fontSize;
-
-                ctx.fillText(text, x, y);
-
-                if (y > canvas.height && Math.random() > 0.975) {
-                    drops[i] = 0;
-                }
-                drops[i]++;
-            }
-        }
-
-        setInterval(drawMatrix, 35);
     </script>
 </body>
 </html>
