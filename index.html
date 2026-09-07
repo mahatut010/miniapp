@@ -27,6 +27,7 @@
             font-size: 14px;
         }
         textarea { resize: vertical; height: 80px; }
+        #debug { margin-top: 20px; font-size: 12px; color: gray; word-break: break-all; }
     </style>
 </head>
 <body>
@@ -53,11 +54,14 @@
         <textarea id="comment" placeholder="Опишите кратко вашу задачу..."></textarea>
     </div>
 
+    <div id="debug">Лог: Готово к работе</div>
+
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Подставляем username, если доступен
+        let debugEl = document.getElementById('debug');
+
         if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.username) {
             document.getElementById('contact').value = '@' + tg.initDataUnsafe.user.username;
         }
@@ -66,6 +70,8 @@
         tg.MainButton.show();
 
         tg.MainButton.onClick(function(){
+            debugEl.innerText = "Лог: Кнопка нажата";
+            
             let service = document.getElementById('service').value;
             let contact = document.getElementById('contact').value;
             let comment = document.getElementById('comment').value;
@@ -81,11 +87,13 @@
                 comment: comment
             };
 
-            // Проверка: открыто ли приложение внутри Telegram
-            if (tg.initData && tg.initData.length > 0) {
-                tg.sendData(JSON.stringify(data));
-            } else {
-                alert("Ошибка: приложение запущено вне Telegram. Метод sendData работает только внутри клиента Telegram.");
+            try {
+                let jsonString = JSON.stringify(data);
+                debugEl.innerText = "Лог: Отправка данных...";
+                tg.sendData(jsonString);
+            } catch (err) {
+                debugEl.innerText = "Лог Ошибка: " + err.message;
+                alert("Ошибка отправки: " + err.message);
             }
         });
     </script>
