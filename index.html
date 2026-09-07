@@ -7,18 +7,19 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-dark: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --card-border-active: #3b82f6;
-            --accent-blue: #3b82f6;
-            --accent-gradient: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --input-bg: rgba(15, 23, 42, 0.6);
+            /* Палитра: Глубокий Бургунди и Молочный */
+            --bg-dark: #180508;
+            --card-bg: rgba(45, 12, 18, 0.75);
+            --card-border: rgba(253, 248, 240, 0.12);
+            --card-border-active: #c93b54;
+            --accent-burgundy: #a31d36;
+            --accent-gradient: linear-gradient(135deg, #800020 0%, #c93b54 100%);
+            --text-main: #fdf8f0; /* Молочный */
+            --text-muted: #d4b8be; /* Приглушенный молочно-розовый */
+            --input-bg: rgba(28, 6, 10, 0.65);
             --radius-lg: 16px;
             --radius-md: 12px;
             --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -42,6 +43,18 @@
             position: relative;
         }
 
+        /* Canvas для бегающих строк кода (Matrix Effect) */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.22;
+        }
+
         /* App Container */
         .container {
             position: relative;
@@ -63,19 +76,20 @@
             align-items: center;
             gap: 6px;
             padding: 6px 14px;
-            background: rgba(59, 130, 246, 0.1);
-            border: 1px solid rgba(59, 130, 246, 0.25);
+            background: rgba(201, 59, 84, 0.15);
+            border: 1px solid rgba(201, 59, 84, 0.3);
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
-            color: var(--accent-blue);
+            color: var(--text-main);
             margin-bottom: 12px;
+            letter-spacing: 0.5px;
         }
 
         .pulse-dot {
             width: 7px;
             height: 7px;
-            background-color: var(--accent-blue);
+            background-color: #c93b54;
             border-radius: 50%;
             animation: pulse 2s infinite;
         }
@@ -111,7 +125,7 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(253, 248, 240, 0.12);
         }
 
         /* Services Grid */
@@ -143,27 +157,27 @@
 
         .service-card.active {
             border-color: var(--card-border-active);
-            background: rgba(59, 130, 246, 0.12);
-            box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+            background: rgba(128, 0, 32, 0.35);
+            box-shadow: 0 4px 20px rgba(163, 29, 54, 0.3);
         }
 
         .card-icon {
             width: 40px;
             height: 40px;
             border-radius: var(--radius-md);
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(253, 248, 240, 0.06);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
             margin-bottom: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(253, 248, 240, 0.08);
             transition: var(--transition);
         }
 
         .service-card.active .card-icon {
-            background: var(--accent-blue);
-            color: #ffffff;
+            background: var(--accent-gradient);
+            color: var(--text-main);
         }
 
         .card-title {
@@ -186,7 +200,7 @@
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(253, 248, 240, 0.2);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -196,9 +210,9 @@
         }
 
         .service-card.active .card-checkmark {
-            background: var(--accent-blue);
-            border-color: var(--accent-blue);
-            color: #ffffff;
+            background: var(--card-border-active);
+            border-color: var(--card-border-active);
+            color: var(--text-main);
             opacity: 1;
             font-weight: bold;
         }
@@ -233,8 +247,8 @@
         }
 
         .chip-option.active {
-            background: rgba(59, 130, 246, 0.15);
-            border-color: var(--accent-blue);
+            background: rgba(163, 29, 54, 0.25);
+            border-color: var(--card-border-active);
             color: var(--text-main);
             font-weight: 600;
         }
@@ -280,9 +294,13 @@
             resize: none;
         }
 
+        .form-control::placeholder {
+            color: rgba(212, 184, 190, 0.5);
+        }
+
         .form-control:focus {
-            border-color: var(--accent-blue);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+            border-color: var(--card-border-active);
+            box-shadow: 0 0 0 3px rgba(201, 59, 84, 0.2);
         }
 
         /* Summary Box */
@@ -306,13 +324,13 @@
         .summary-row:last-child {
             margin-bottom: 0;
             padding-top: 10px;
-            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+            border-top: 1px dashed rgba(253, 248, 240, 0.15);
             color: var(--text-main);
             font-weight: 600;
         }
 
         .summary-value {
-            color: var(--accent-blue);
+            color: var(--text-main);
             font-weight: 600;
         }
 
@@ -323,7 +341,7 @@
             left: 0;
             right: 0;
             padding: 16px;
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0) 0%, var(--bg-dark) 40%);
+            background: linear-gradient(180deg, rgba(24, 5, 8, 0) 0%, var(--bg-dark) 45%);
             z-index: 10;
         }
 
@@ -336,21 +354,21 @@
             justify-content: center;
             gap: 10px;
             background: var(--accent-gradient);
-            border: none;
+            border: 1px solid rgba(253, 248, 240, 0.15);
             border-radius: var(--radius-md);
             padding: 16px;
-            color: #ffffff;
+            color: var(--text-main);
             font-family: 'Inter', sans-serif;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35);
+            box-shadow: 0 4px 25px rgba(128, 0, 32, 0.45);
             transition: var(--transition);
         }
 
         .btn-submit:active {
             transform: scale(0.98);
-            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.2);
+            box-shadow: 0 2px 10px rgba(128, 0, 32, 0.3);
         }
 
         /* Toast Notifications */
@@ -359,8 +377,8 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%) translateY(-100px);
-            background: rgba(30, 41, 59, 0.95);
-            border: 1px solid var(--accent-blue);
+            background: rgba(45, 12, 18, 0.95);
+            border: 1px solid var(--card-border-active);
             color: var(--text-main);
             padding: 12px 20px;
             border-radius: 30px;
@@ -369,7 +387,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
             z-index: 100;
             transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             backdrop-filter: blur(10px);
@@ -381,7 +399,7 @@
 
         @keyframes pulse {
             0% { transform: scale(0.95); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 1; }
+            50% { transform: scale(1.15); opacity: 1; }
             100% { transform: scale(0.95); opacity: 0.8; }
         }
 
@@ -392,6 +410,9 @@
     </style>
 </head>
 <body>
+
+    <!-- Canvas для фоновой анимации матричного кода -->
+    <canvas id="matrix-canvas"></canvas>
 
     <!-- Toast Alert Container -->
     <div id="toast" class="toast">
@@ -508,13 +529,13 @@
             </div>
             <div class="summary-row">
                 <span>Статус:</span>
-                <span class="summary-value" style="color: #10b981;">Готово к отправке</span>
+                <span class="summary-value" style="color: #4ade80;">Готово к отправке</span>
             </div>
         </div>
 
     </div>
 
-    <!-- Bottom Action Button (Единственная кнопка) -->
+    <!-- Bottom Action Button -->
     <div class="action-button-container">
         <button type="button" id="submit-btn" class="btn-submit">
             <span>Отправить заявку</span>
@@ -523,17 +544,52 @@
     </div>
 
     <script>
+        // --- Анимация фоновых бегающих строк кода (Matrix Animation) ---
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const codeChars = '0123456789ABCDEF{}[]<>/\\;:$#@!*+=&%'.split('');
+        const fontSize = 13;
+        const columns = Math.floor(window.innerWidth / fontSize) + 1;
+        const drops = Array(columns).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(24, 5, 8, 0.08)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#fdf8f0'; // Молочный цвет текста
+            ctx.font = fontSize + 'px "Fira Code", monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const char = codeChars[Math.floor(Math.random() * codeChars.length)];
+                ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 33);
+
         // --- Telegram WebApp Setup ---
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // Отключаем стандартную встроенную кнопку Telegram, чтобы не было дублирования
+        // Отключаем встроенную кнопку Telegram
         tg.MainButton.hide();
 
         // Color theme Sync
-        if (tg.setHeaderColor) tg.setHeaderColor('#0f172a');
-        if (tg.setBackgroundColor) tg.setBackgroundColor('#0f172a');
+        if (tg.setHeaderColor) tg.setHeaderColor('#180508');
+        if (tg.setBackgroundColor) tg.setBackgroundColor('#180508');
 
         // Autofill Telegram Username
         const contactInput = document.getElementById('contact');
@@ -546,14 +602,13 @@
             }
         }
 
-        // --- Вспомогательная функция закрытия клавиатуры ---
+        // --- Закрытие клавиатуры ---
         function dismissKeyboard() {
             if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) {
                 document.activeElement.blur();
             }
         }
 
-        // Автоматически скрывать клавиатуру при нажатии Enter в однострочном поле
         contactInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
                 e.preventDefault();
@@ -625,7 +680,7 @@
 
         // --- Submit Order Logic ---
         function sendPayload() {
-            dismissKeyboard(); // Скрываем клавиатуру перед отправкой
+            dismissKeyboard();
             
             state.contact = contactInput.value.trim();
             state.comment = commentInput.value.trim();
