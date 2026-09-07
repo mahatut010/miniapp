@@ -2,100 +2,729 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Оформление заявки</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DevStudio — Заказ разработки</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--tg-theme-bg-color, #ffffff);
-            color: var(--tg-theme-text-color, #000000);
-            margin: 0;
-            padding: 16px;
+        :root {
+            --bg-dark: #080b12;
+            --card-bg: rgba(18, 24, 38, 0.65);
+            --card-border: rgba(0, 242, 254, 0.15);
+            --card-border-active: #00f2fe;
+            --primary-glow: #00f2fe;
+            --secondary-glow: #4facfe;
+            --accent-purple: #7f00ff;
+            --text-main: #f0f4f8;
+            --text-muted: #8a99ad;
+            --input-bg: rgba(10, 14, 23, 0.8);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        h2 { text-align: center; font-size: 20px; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
-        select, input, textarea {
-            width: 100%;
-            padding: 10px;
+
+        * {
             box-sizing: border-box;
-            border: 1px solid var(--tg-theme-hint-color, #ccc);
-            border-radius: 8px;
-            background: var(--tg-theme-secondary-bg-color, #f5f5f5);
-            color: var(--tg-theme-text-color, #000000);
-            font-size: 14px;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        textarea { resize: vertical; height: 80px; }
-        #debug { margin-top: 20px; font-size: 12px; color: gray; word-break: break-all; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 90px;
+            position: relative;
+        }
+
+        /* Matrix Code Canvas Background */
+        #matrix-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+            opacity: 0.22;
+            pointer-events: none;
+        }
+
+        /* App Container */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px 16px;
+        }
+
+        /* Header Section */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            border-radius: 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 11px;
+            color: var(--primary-glow);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--primary-glow);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--primary-glow);
+            animation: pulse 1.5s infinite;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Section Titles */
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin: 20px 0 12px 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+        }
+
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .service-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 120px;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-glow), transparent);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .service-card:active {
+            transform: scale(0.97);
+        }
+
+        .service-card.active {
+            border-color: var(--card-border-active);
+            background: rgba(0, 242, 254, 0.08);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.15), inset 0 0 15px rgba(0, 242, 254, 0.05);
+        }
+
+        .service-card.active::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: var(--radius-md);
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: var(--transition);
+        }
+
+        .service-card.active .card-icon {
+            background: var(--primary-glow);
+            color: #000;
+            box-shadow: 0 0 12px var(--primary-glow);
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .card-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.3;
+        }
+
+        .card-checkmark {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1px solid var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            transition: var(--transition);
+            opacity: 0.5;
+        }
+
+        .service-card.active .card-checkmark {
+            background: var(--primary-glow);
+            border-color: var(--primary-glow);
+            color: #000;
+            opacity: 1;
+            font-weight: bold;
+        }
+
+        /* Budget & Options */
+        .options-row {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+
+        .options-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chip-option {
+            flex: 0 0 auto;
+            padding: 10px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-muted);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .chip-option.active {
+            background: linear-gradient(135deg, rgba(0, 242, 254, 0.2) 0%, rgba(127, 0, 255, 0.2) 100%);
+            border-color: var(--primary-glow);
+            color: var(--text-main);
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
+        }
+
+        /* Form Inputs */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            color: var(--text-muted);
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .form-control {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 14px 14px 14px 42px;
+            color: var(--text-main);
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: var(--transition);
+            backdrop-filter: blur(8px);
+        }
+
+        textarea.form-control {
+            padding-left: 42px;
+            min-height: 90px;
+            resize: none;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-glow);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+        }
+
+        .form-control:focus + .input-icon {
+            color: var(--primary-glow);
+        }
+
+        /* Summary Box */
+        .summary-card {
+            background: linear-gradient(135deg, rgba(18, 24, 38, 0.8) 0%, rgba(10, 14, 23, 0.9) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            margin-top: 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+        }
+
+        .summary-row:last-child {
+            margin-bottom: 0;
+            padding-top: 8px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .summary-value {
+            color: var(--primary-glow);
+        }
+
+        /* Action Button */
+        .action-button-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            background: linear-gradient(180deg, transparent 0%, var(--bg-dark) 40%);
+            z-index: 10;
+        }
+
+        .btn-submit {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #7f00ff 100%);
+            background-size: 200% auto;
+            border: none;
+            border-radius: var(--radius-md);
+            padding: 16px;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            box-shadow: 0 4px 25px rgba(0, 242, 254, 0.35);
+            transition: var(--transition);
+        }
+
+        .btn-submit:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 15px rgba(0, 242, 254, 0.2);
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: rgba(18, 24, 38, 0.95);
+            border: 1px solid var(--primary-glow);
+            color: var(--text-main);
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 242, 254, 0.3);
+            z-index: 100;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Keyframes Animations */
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 242, 254, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(0, 242, 254, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 242, 254, 0); }
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
-    <h2>Выбор услуги</h2>
-    <div class="form-group">
-        <label for="service">Что нужно разработать?</label>
-        <select id="service">
-            <option value="Сайт">Сайт</option>
-            <option value="Telegram Бот">Telegram Бот</option>
-            <option value="Программа">Программа</option>
-            <option value="Мобильное приложение">Приложение</option>
-            <option value="Mini App">Mini App приложение</option>
-            <option value="VPN сервис">VPN сервис</option>
-        </select>
+
+    <!-- Matrix Code Canvas Animation -->
+    <canvas id="matrix-canvas"></canvas>
+
+    <!-- Toast Alert Container -->
+    <div id="toast" class="toast">
+        <span id="toast-icon">⚡</span>
+        <span id="toast-msg">Сообщение</span>
     </div>
 
-    <div class="form-group">
-        <label for="contact">Ваш Telegram (@username или номер)</label>
-        <input type="text" id="contact" placeholder="@username">
+    <!-- Main Container -->
+    <div class="container">
+        
+        <!-- Header -->
+        <div class="header">
+            <div class="header-badge">
+                <span class="pulse-dot"></span>
+                <span>DevStudio Core v2.4</span>
+            </div>
+            <h1>Заказ разработки</h1>
+            <p>Выберите нужный стек и опишите задачу</p>
+        </div>
+
+        <!-- Services Selection -->
+        <div class="section-title">01 // Продукт</div>
+        <div class="services-grid" id="services-grid">
+            
+            <div class="service-card active" data-service="Telegram Mini App">
+                <div class="card-checkmark">✓</div>
+                <div class="card-icon">⚡</div>
+                <div>
+                    <div class="card-title">Mini App</div>
+                    <div class="card-desc">Приложение внутри Telegram</div>
+                </div>
+            </div>
+
+            <div class="service-card" data-service="Telegram Бот">
+                <div class="card-checkmark">✓</div>
+                <div class="card-icon">🤖</div>
+                <div>
+                    <div class="card-title">Telegram Бот</div>
+                    <div class="card-desc">Автоматизация & AI функционал</div>
+                </div>
+            </div>
+
+            <div class="service-card" data-service="Веб-Сайт / Web3">
+                <div class="card-checkmark">✓</div>
+                <div class="card-icon">🌐</div>
+                <div>
+                    <div class="card-title">Веб-Сайт</div>
+                    <div class="card-desc">Landing, Web3, SaaS сервисы</div>
+                </div>
+            </div>
+
+            <div class="service-card" data-service="Мобильное Приложение">
+                <div class="card-checkmark">✓</div>
+                <div class="card-icon">📱</div>
+                <div>
+                    <div class="card-title">Приложение</div>
+                    <div class="card-desc">iOS & Android разработка</div>
+                </div>
+            </div>
+
+            <div class="service-card" data-service="Десктоп Программа">
+                <div class="card-checkmark">✓</div>
+                <div class="card-icon">💻</div>
+                <div>
+                    <div class="card-title">Программа</div>
+                    <div class="card-desc">Софт для Windows / MacOS</div>
+                </div>
+            </div>
+
+            <div class="service-card" data-service="VPN Сервис">
+                <div class="card-checkmark">✓</div>
+                <div class="card-icon">🛡️</div>
+                <div>
+                    <div class="card-title">VPN Сервис</div>
+                    <div class="card-desc">Собственные протоколы</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Priority / Timeline Selection -->
+        <div class="section-title">02 // Срочность</div>
+        <div class="options-row" id="priority-options">
+            <div class="chip-option active" data-priority="Стандартно">⚙️ Стандартно</div>
+            <div class="chip-option" data-priority="Срочно (ASAP)">🔥 Срочно (ASAP)</div>
+            <div class="chip-option" data-priority="Не спешу">☕ В свободном темпе</div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="section-title">03 // Детали и Контакты</div>
+        <div class="form-group">
+            <div class="input-wrapper">
+                <input type="text" id="contact" class="form-control" placeholder="@username или телефон">
+                <span class="input-icon">👤</span>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="input-wrapper">
+                <textarea id="comment" class="form-control" placeholder="Краткое ТЗ, пожелания, ссылки на примеры..."></textarea>
+                <span class="input-icon" style="top: 22px;">📝</span>
+            </div>
+        </div>
+
+        <!-- Code Style Summary -->
+        <div class="summary-card">
+            <div class="summary-row">
+                <span>[SELECTED]:</span>
+                <span class="summary-value" id="summary-service">Mini App</span>
+            </div>
+            <div class="summary-row">
+                <span>[PRIORITY]:</span>
+                <span class="summary-value" id="summary-priority">Стандартно</span>
+            </div>
+            <div class="summary-row">
+                <span>[STATUS]:</span>
+                <span class="summary-value" style="color: #00f2fe;">Ready to Send</span>
+            </div>
+        </div>
+
     </div>
 
-    <div class="form-group">
-        <label for="comment">Комментарий к заказу</label>
-        <textarea id="comment" placeholder="Опишите кратко вашу задачу..."></textarea>
+    <!-- Bottom Action Button -->
+    <div class="action-button-container">
+        <button type="button" id="submit-btn" class="btn-submit">
+            <span>ОТПРАВИТЬ ЗАЯВКУ</span>
+            <span>➔</span>
+        </button>
     </div>
-
-    <div id="debug">Лог: Готово к работе</div>
 
     <script>
-        let tg = window.Telegram.WebApp;
+        // --- Telegram WebApp Setup ---
+        const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.enableClosingConfirmation();
 
-        let debugEl = document.getElementById('debug');
+        // Color theme Sync
+        if (tg.setHeaderColor) tg.setHeaderColor('#080b12');
+        if (tg.setBackgroundColor) tg.setBackgroundColor('#080b12');
 
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.username) {
-            document.getElementById('contact').value = '@' + tg.initDataUnsafe.user.username;
+        // Autofill Telegram Username
+        const contactInput = document.getElementById('contact');
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            const user = tg.initDataUnsafe.user;
+            if (user.username) {
+                contactInput.value = '@' + user.username;
+            }
         }
 
-        tg.MainButton.text = "Отправить заявку";
-        tg.MainButton.show();
+        // State Management
+        let state = {
+            service: 'Telegram Mini App',
+            priority: 'Стандартно',
+            contact: contactInput.value || '',
+            comment: ''
+        };
 
-        tg.MainButton.onClick(function(){
-            debugEl.innerText = "Лог: Кнопка нажата";
+        // UI Elements
+        const serviceCards = document.querySelectorAll('.service-card');
+        const priorityChips = document.querySelectorAll('.chip-option');
+        const summaryService = document.getElementById('summary-service');
+        const summaryPriority = document.getElementById('summary-priority');
+        const submitBtn = document.getElementById('submit-btn');
+
+        // --- Haptic Feedback Helper ---
+        function triggerHaptic(style = 'light') {
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred(style);
+            }
+        }
+
+        // --- Toast Notification Helper ---
+        function showToast(message, icon = '⚡') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = message;
+            document.getElementById('toast-icon').innerText = icon;
             
-            let service = document.getElementById('service').value;
-            let contact = document.getElementById('contact').value;
-            let comment = document.getElementById('comment').value;
+            toast.classList.add('show');
+            triggerHaptic('warning');
 
-            if (!contact) {
-                alert('Пожалуйста, укажите контакт для связи.');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // --- Service Selection Handler ---
+        serviceCards.forEach(card => {
+            card.addEventListener('click', () => {
+                triggerHaptic('medium');
+                serviceCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                
+                state.service = card.getAttribute('data-service');
+                summaryService.innerText = state.service;
+            });
+        });
+
+        // --- Priority Selection Handler ---
+        priorityChips.forEach(chip => {
+            chip.addEventListener('click', () => {
+                triggerHaptic('light');
+                priorityChips.forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+
+                state.priority = chip.getAttribute('data-priority');
+                summaryPriority.innerText = state.priority;
+            });
+        });
+
+        // --- Submit Order Logic ---
+        function sendPayload() {
+            state.contact = contactInput.value.trim();
+            state.comment = document.getElementById('comment').value.trim();
+
+            if (!state.contact) {
+                showToast('Укажите ваш контакт!', '⚠️');
+                contactInput.focus();
                 return;
             }
 
-            let data = {
-                service: service,
-                contact: contact,
-                comment: comment
+            triggerHaptic('heavy');
+
+            const payload = {
+                service: state.service,
+                priority: state.priority,
+                contact: state.contact,
+                comment: state.comment || 'Не указан'
             };
 
+            // Attempting to send data via Telegram Native SDK
             try {
-                let jsonString = JSON.stringify(data);
-                debugEl.innerText = "Лог: Отправка данных...";
-                tg.sendData(jsonString);
+                tg.sendData(JSON.stringify(payload));
             } catch (err) {
-                debugEl.innerText = "Лог Ошибка: " + err.message;
-                alert("Ошибка отправки: " + err.message);
+                showToast('Ошибка отправки. Открыто вне Telegram?', '❌');
             }
+        }
+
+        submitBtn.addEventListener('click', sendPayload);
+
+        // Configure Telegram MainButton as backup sync
+        tg.MainButton.setText("ОТПРАВИТЬ ЗАЯВКУ");
+        tg.MainButton.setParams({
+            color: "#00f2fe",
+            text_color: "#000000"
         });
+        tg.MainButton.onClick(sendPayload);
+        tg.MainButton.show();
+
+
+        // =================================================================
+        // --- MATRIX / CODE RAIN CANVAS ANIMATION ---
+        // =================================================================
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        const chars = '01<>/{}[]=;:$#&@_ABCDEFGHJKLMNOPQRSTUVWXYZ';
+        const fontSize = 12;
+        let columns = Math.floor(canvas.width / fontSize);
+        let drops = Array(columns).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(8, 11, 18, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#00f2fe';
+            ctx.font = `${fontSize}px 'Fira Code', monospace`;
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+                const x = i * fontSize;
+                const y = drops[i] * fontSize;
+
+                ctx.fillText(text, x, y);
+
+                if (y > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+
+        setInterval(drawMatrix, 35);
     </script>
 </body>
 </html>
