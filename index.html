@@ -356,7 +356,7 @@
             background: var(--accent-gradient);
             border: 1px solid rgba(253, 248, 240, 0.15);
             border-radius: var(--radius-md);
-            padding: 16px;
+            padding: 14px 16px;
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             font-size: 15px;
@@ -369,6 +369,80 @@
         .btn-submit:active {
             transform: scale(0.98);
             box-shadow: 0 2px 10px rgba(128, 0, 32, 0.3);
+        }
+
+        /* Анимация человечка и двери */
+        .btn-door-anim {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .door-svg {
+            width: 32px;
+            height: 32px;
+            overflow: visible;
+        }
+
+        .door-leaf {
+            transform-origin: 34px center;
+            transition: transform 0.35s ease-in-out;
+        }
+
+        .stick-man {
+            transform-origin: center;
+            transition: transform 0.8s ease-in-out, opacity 0.8s ease-in-out;
+        }
+
+        .leg-left { transform-origin: 7px 23px; }
+        .leg-right { transform-origin: 7px 23px; }
+
+        /* Запуск анимации при отправке */
+        .btn-submit.animating .door-leaf {
+            transform: perspective(100px) rotateY(-80deg);
+        }
+
+        .btn-submit.animating .stick-man {
+            animation: manWalkEnter 1.0s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation-delay: 0.15s;
+        }
+
+        .btn-submit.animating .leg-left {
+            animation: legWalkLeft 0.25s infinite alternate ease-in-out;
+            animation-delay: 0.15s;
+        }
+
+        .btn-submit.animating .leg-right {
+            animation: legWalkRight 0.25s infinite alternate ease-in-out;
+            animation-delay: 0.15s;
+        }
+
+        @keyframes legWalkLeft {
+            0% { transform: rotate(-20deg); }
+            100% { transform: rotate(20deg); }
+        }
+
+        @keyframes legWalkRight {
+            0% { transform: rotate(20deg); }
+            100% { transform: rotate(-20deg); }
+        }
+
+        @keyframes manWalkEnter {
+            0% {
+                transform: translateX(0) scale(1);
+                opacity: 1;
+            }
+            70% {
+                transform: translateX(18px) scale(0.85);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(22px) scale(0.5);
+                opacity: 0;
+            }
         }
 
         /* Toast Notifications */
@@ -539,7 +613,27 @@
     <div class="action-button-container">
         <button type="button" id="submit-btn" class="btn-submit">
             <span>Отправить заявку</span>
-            <span>➔</span>
+            <div class="btn-door-anim">
+                <svg class="door-svg" viewBox="0 0 40 40">
+                    <!-- Тёмный проём за дверью -->
+                    <rect x="21" y="9" width="12" height="22" fill="#180508"/>
+                    <!-- Рама двери -->
+                    <rect x="20" y="8" width="14" height="24" fill="none" stroke="currentColor" stroke-width="2" rx="1.5"/>
+                    <!-- Дверное полотно -->
+                    <rect class="door-leaf" x="20" y="8" width="14" height="24" fill="currentColor" rx="1"/>
+                    <!-- Дверная ручка -->
+                    <circle cx="23" cy="20" r="1" fill="#180508"/>
+                    <!-- Человечек -->
+                    <g class="stick-man">
+                        <circle cx="7" cy="13" r="2.5" fill="currentColor"/>
+                        <line x1="7" y1="15.5" x2="7" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="7" y1="18" x2="4" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <line x1="7" y1="18" x2="10" y2="21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <line class="leg-left" x1="7" y1="23" x2="4" y2="29" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <line class="leg-right" x1="7" y1="23" x2="10" y2="29" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </g>
+                </svg>
+            </div>
         </button>
     </div>
 
@@ -631,6 +725,8 @@
         const summaryPriority = document.getElementById('summary-priority');
         const submitBtn = document.getElementById('submit-btn');
 
+        let isSubmitting = false;
+
         // --- Haptic Feedback Helper ---
         function triggerHaptic(style = 'light') {
             if (tg.HapticFeedback) {
@@ -680,6 +776,8 @@
 
         // --- Submit Order Logic ---
         function sendPayload() {
+            if (isSubmitting) return;
+
             dismissKeyboard();
             
             state.contact = contactInput.value.trim();
@@ -691,20 +789,31 @@
                 return;
             }
 
-            triggerHaptic('heavy');
+            isSubmitting = true;
+            triggerHaptic('medium');
+            
+            // Запускаем анимацию человечка и двери
+            submitBtn.classList.add('animating');
 
-            const payload = {
-                service: state.service,
-                priority: state.priority,
-                contact: state.contact,
-                comment: state.comment || 'Без комментариев'
-            };
+            // Задержка на время воспроизведения анимации перед отправкой
+            setTimeout(() => {
+                triggerHaptic('heavy');
 
-            try {
-                tg.sendData(JSON.stringify(payload));
-            } catch (err) {
-                showToast('Ошибка отправки. Открыто вне Telegram?', '❌');
-            }
+                const payload = {
+                    service: state.service,
+                    priority: state.priority,
+                    contact: state.contact,
+                    comment: state.comment || 'Без комментариев'
+                };
+
+                try {
+                    tg.sendData(JSON.stringify(payload));
+                } catch (err) {
+                    showToast('Ошибка отправки. Открыто вне Telegram?', '❌');
+                    submitBtn.classList.remove('animating');
+                    isSubmitting = false;
+                }
+            }, 1300);
         }
 
         submitBtn.addEventListener('click', sendPayload);
